@@ -16,8 +16,8 @@
 #include <string.h>
 #include <unistd.h>
 
-typedef int (*open_func_t)(const char *pathname, ...);
-typedef int (*open64_func_t)(const char *pathname, ...);
+typedef int (*open_func_t)(const char *pathname, int flags, ...);
+typedef int (*open64_func_t)(const char *pathname, int flags, ...);
 
 static open_func_t orig_open;
 static open64_func_t orig_open64;
@@ -59,21 +59,23 @@ void logOpenAccess(const char *pathname) {
 }
 
 int open(const char *pathname, int flags, ...) {
+	fprintf(stderr, "open\n");
   logOpenAccess(pathname);
   
   va_list args;
   va_start(args, flags);
-  int ret = orig_open(pathname, flags, args);
+  int ret = orig_open(pathname, flags,  flags & O_CREAT ? va_arg(args, int) : 0);
   va_end(args);
   return ret;
 }
 
 int open64(const char *pathname, int flags, ...) {
+	fprintf(stderr, "open64\n");
   logOpenAccess(pathname);
   
   va_list args;
-  va_start(args, flags);
-  int ret = orig_open64(pathname, flags, args);
+  va_start(args, flags);  
+  int ret = orig_open64(pathname, flags, args, flags & O_CREAT ? va_arg(args, int) : 0);
   va_end(args);
   return ret;
 }
