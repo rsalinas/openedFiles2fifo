@@ -32,6 +32,14 @@ do
 done
 ```
 
+If you want a more robust client, put something like this into your crontab:
+
+``` 
+@reboot mkfifo /tmp/open_watch_fifo ; daemon -o nowlistening.log --name nowlistening --  xargs -d '\n' -a /tmp/open_watch_fifo -n1 ~/bin/onFileOpened.sh
+```
+
+
+
 Credits 
 
 Based on this code: 
